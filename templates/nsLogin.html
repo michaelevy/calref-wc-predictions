@@ -1,0 +1,54 @@
+{{define "nsLogin.html"}}
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Log in with NationStates</title>
+        <style>
+            body {
+                font-family: system-ui, sans-serif;
+                max-width: 40rem;
+                margin: 4rem auto;
+                padding: 0 1rem;
+                line-height: 1.5;
+            }
+            .err {
+                color: #b00;
+            }
+            label {
+                display: block;
+                margin: 0.75rem 0 0.25rem;
+            }
+            input {
+                width: 100%;
+                padding: 0.4rem;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Log in with NationStates</h1>
+        {{if .Error}}
+        <p class="err">{{.Error}}</p>
+        {{end}}
+        <ol>
+            <li>
+                While logged into your nation, open
+                <a href="{{.VerifyURL}}" target="_blank" rel="noopener"
+                    >the NationStates verification page</a
+                >
+                and copy the code it shows.
+            </li>
+            <li>Enter your nation name and that code below.</li>
+        </ol>
+        <form method="POST" action="/login/nationstates">
+            <label for="nation">Nation name</label>
+            <input id="nation" name="nation" autocomplete="off" required />
+            <label for="code">Verification code</label>
+            <input id="code" name="code" autocomplete="off" required />
+            <p><button type="submit">Verify &amp; log in</button></p>
+        </form>
+        <p><a href="/">Back</a></p>
+    </body>
+</html>
+{{end}}

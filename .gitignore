@@ -1,0 +1,5 @@
+.env
+app.db
+app.db-*
+wc-predictions
+wc-predictions.exe
