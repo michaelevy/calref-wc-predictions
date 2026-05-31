@@ -289,7 +289,7 @@ func (s *Store) FetchFixtures() ([]Fixture, error) {
 	for rows.Next() {
 		var f Fixture
 
-		if err := rows.Scan(&f.ID, &f.AwayId, &f.HomeId, &f.HomeName, &f.AwayName, &f.Kickoff, &f.Status, &f.HomeGoals, &f.AwayGoals); err != nil {
+		if err := rows.Scan(&f.ID, &f.HomeId, &f.AwayId, &f.HomeName, &f.AwayName, &f.Kickoff, &f.Status, &f.HomeGoals, &f.AwayGoals); err != nil {
 			return nil, err
 		}
 
@@ -430,10 +430,22 @@ func (s *Store) SaveRankings(userID int64, orderedTeams []int) error {
 
 func (s *Store) Leaderboard() ([]LeaderboardEntry, error) {
 	rows, err := s.db.Query(
-		`SELECT u.username, 0 AS points
-		FROM users u
-		WHERE EXISTS (SELECT 1 FROM rankings r WHERE r.user_id = u.id)
-		ORDER BY points DESC, u.username`)
+		`SELECT u.username,
+    COALESCE((
+      SELECT SUM(CASE
+        WHEN f.home_goals = f.away_goals THEN 1
+        WHEN rh.rank < ra.rank AND f.home_goals > f.away_goals THEN 3
+        WHEN ra.rank < rh.rank AND f.away_goals > f.home_goals THEN 3
+        ELSE 0
+      END)
+      FROM fixtures f
+      JOIN rankings rh ON rh.user_id = u.id AND rh.team_id = f.home_team_id
+      JOIN rankings ra ON ra.user_id = u.id AND ra.team_id = f.away_team_id
+      WHERE f.status = 'FT'
+    ), 0) AS points
+  FROM users u
+  WHERE EXISTS (SELECT 1 FROM rankings r WHERE r.user_id = u.id)
+  ORDER BY points DESC, u.username`)
 	if err != nil {
 		return nil, err
 	}
