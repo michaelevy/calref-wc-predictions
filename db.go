@@ -26,7 +26,23 @@ type Store struct {
 
 type LeaderboardEntry struct {
 	Username string
-	Points int
+	Points   int
+}
+
+type SideName struct {
+	Username string
+	Side     string
+}
+
+type Fixture struct {
+	ID                   int
+	HomeName, AwayName   string
+	HomeGoals, AwayGoals *int
+	HomeId, AwayId       int
+	Kickoff              time.Time
+	Played               bool
+	HomeSide, AwaySide   []SideName
+	Status               string
 }
 
 func openStore(path string) (*Store, error) {
@@ -74,6 +90,15 @@ func (s *Store) migrate() error {
 			rank INTEGER NOT NULL,
 			PRIMARY KEY (user_id, team_id),
 			UNIQUE (user_id, rank)
+		)`,
+		`CREATE TABLE IF NOT EXISTS FIXTURES (
+			id INTEGER PRIMARY KEY,
+			home_team_id INTEGER NOT NULL REFERENCES teams(id),
+			away_team_id INTEGER NOT NULL REFERENCES teams(id),
+			kickoff DATETIME NOT NULL,
+			status TEXT NOT NULL,
+			home_goals INTEGER,
+			away_goals INTEGER
 		)`,
 	}
 	for _, q := range stmts {
@@ -146,6 +171,33 @@ func (s *Store) migrate() error {
 			}
 		}
 	}
+	var nf int
+	s.db.QueryRow(`SELECT COUNT(*) FROM fixtures`).Scan(&nf)
+	if nf == 0 {
+		now := time.Now().UTC()
+		gi := func(n int) *int { return &n } // helper for goal pointers
+		fixtures := []struct {
+			id, home, away       int
+			kickoff              time.Time
+			status               string
+			homeGoals, awayGoals *int
+		}{
+			// finished: New Zealand 3-0 Iran
+			{1, 41, 32, now.Add(-24 * time.Hour), "FT", gi(3), gi(0)},
+			// finished draw: Spain 1-1 England
+			{2, 1, 3, now.Add(-12 * time.Hour), "FT", gi(1), gi(1)},
+			// upcoming: Switzerland v Mexico
+			{3, 17, 20, now.Add(24 * time.Hour), "NS", nil, nil},
+		}
+		for _, f := range fixtures {
+			if _, err := s.db.Exec(
+				`INSERT INTO fixtures (id, home_team_id, away_team_id, kickoff, status, home_goals, away_goals)
+                         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+				f.id, f.home, f.away, f.kickoff, f.status, f.homeGoals, f.awayGoals); err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
@@ -171,6 +223,130 @@ func (s *Store) AddUser(provider, providerID string, username string) (*User, er
 		return nil, err
 	}
 	return &u, nil
+}
+
+func (s *Store) RefreshFixtures(resp *fifaMatchesResp) error {
+	codeToId := map[string]int{}
+	rows, err := s.db.Query(`SELECT id, code FROM teams`)
+	if err != nil {
+		return err
+	}
+	for rows.Next() {
+		var id int
+		var code string
+		rows.Scan(&id, &code)
+		codeToId[code] = id
+	}
+	rows.Close()
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	for _, f := range resp.Results {
+
+		homeTeamId, ok := codeToId[f.Home.IdCountry]
+		if !ok {
+			continue
+		}
+		awayTeamId, ok := codeToId[f.Away.IdCountry]
+		if !ok {
+			continue
+		}
+		status := "NS"
+		if f.MatchStatus == 0 {
+			status = "FT"
+		}
+		var hg, ag *int
+		if f.MatchStatus == 0 {
+			hg, ag = f.HomeTeamScore, f.AwayTeamScore
+		}
+		_, err := tx.Exec(
+			`INSERT INTO fixtures (id, home_team_id, away_team_id, kickoff, status, home_goals, away_goals)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+                    status     = excluded.status,
+                    home_goals = excluded.home_goals,
+                    away_goals = excluded.away_goals`,
+			f.IdMatch, homeTeamId, awayTeamId, f.Date.UTC(), status, hg, ag)
+		if err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
+func (s *Store) FetchFixtures() ([]Fixture, error) {
+	var out []Fixture
+	rows, err := s.db.Query(`SELECT f.id,f.home_team_id,f.away_team_id, t1.name, t2.name, f.kickoff, f.status, f.home_goals, f.away_goals FROM Fixtures f
+		inner join Teams t1 on f.home_team_id = t1.id
+		inner join Teams t2 on f.away_team_id = t2.id
+		ORDER BY f.kickoff`)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var f Fixture
+
+		if err := rows.Scan(&f.ID, &f.AwayId, &f.HomeId, &f.HomeName, &f.AwayName, &f.Kickoff, &f.Status, &f.HomeGoals, &f.AwayGoals); err != nil {
+			return nil, err
+		}
+
+		home, away, err := s.FixtureSides(f.HomeId, f.AwayId)
+		if err != nil {
+			return nil, err
+		}
+		for _, name := range home {
+			f.HomeSide = append(f.HomeSide, SideName{name, f.HomeName})
+		}
+		for _, name := range away {
+			f.AwaySide = append(f.AwaySide, SideName{name, f.AwayName})
+		}
+		out = append(out, f)
+
+	}
+	// if err := rows.Err(); err != nil {
+	// 	rows.Close()
+	// 	return nil, err
+	// } else {
+	// 	rows.Close()
+	// }
+
+	// var out []Fixture
+	// for _, r := range fixtures {
+	// 	f := r.f
+	// 	f.Played = r.status == "FT"
+
+	// 	homeColor, awayColor := ""
+	// }
+	return out, nil
+}
+
+func (s *Store) FixtureSides(homeId, awayId int) (home []string, away []string, err error) {
+	rows, err := s.db.Query(`SELECT u.username, CASE WHEN rh.rank < ra.rank THEN 'home' ELSE 'away' END
+  FROM users u
+  JOIN rankings rh ON rh.user_id = u.id AND rh.team_id = ?
+  JOIN rankings ra ON ra.user_id = u.id AND ra.team_id = ?
+  ORDER BY u.username`, homeId, awayId)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var name string
+		var isHome string
+		if err := rows.Scan(&name, &isHome); err != nil {
+			return nil, nil, err
+		}
+		if isHome == "home" {
+			home = append(home, name)
+		} else {
+			away = append(away, name)
+		}
+	}
+	return home, away, nil
 }
 
 func (s *Store) CreateSession(userID int64, token string, ttl time.Duration) error {
@@ -252,7 +428,7 @@ func (s *Store) SaveRankings(userID int64, orderedTeams []int) error {
 	return tx.Commit()
 }
 
-func (s *Store) Leaderboard() ([]LeaderboardEntry, error){
+func (s *Store) Leaderboard() ([]LeaderboardEntry, error) {
 	rows, err := s.db.Query(
 		`SELECT u.username, 0 AS points
 		FROM users u

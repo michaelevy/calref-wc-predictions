@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+    {{template "head" "Games"}}
+    <body>
+        {{template "nav" .User}} {{range .Fixtures}}
+        <div
+            style="
+                border: 3px solid #222;
+                border-radius: 8px;
+                padding: 1rem;
+                margin: 1rem 0;
+            "
+        >
+            <div
+                style="
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 1.4rem;
+                    font-weight: bold;
+                "
+            >
+                <span>{{.HomeName}}</span>
+                <span
+                    >{{if eq .Status
+                    "FT"}}{{.HomeGoals}}-{{.AwayGoals}}{{else}}v{{end}}</span
+                >
+                <span>{{.AwayName}}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between">
+                <div>
+                    {{range .HomeSide}}
+                    <div>{{.Username}}</div>
+                    {{end}}
+                </div>
+                <div>
+                    {{range .AwaySide}}
+                    <div>{{.Username}}</div>
+                    {{end}}
+                </div>
+            </div>
+            <p style="text-align: center; color: #999">
+                {{.Kickoff.Format "3pm 02/01/06"}}
+            </p>
+        </div>
+        {{end}}
+    </body>
+</html>

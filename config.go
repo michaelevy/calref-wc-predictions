@@ -8,28 +8,32 @@ import (
 )
 
 type Config struct {
-	Port         string
-	ClientID     string
-	ClientSecret string
-	RedirectURL  string
-	DatabasePath string
-	CookieSecure bool
-	NSSiteToken  string
-	NSUserAgent  string
+	Port           string
+	ClientID       string
+	ClientSecret   string
+	RedirectURL    string
+	DatabasePath   string
+	CookieSecure   bool
+	NSSiteToken    string
+	NSUserAgent    string
+	APIFootballKey string
+	FIFAUserAgent  string
 }
 
 func loadConfig() Config {
 	loadEnvFile(".env")
 
 	cfg := Config{
-		Port:         getenv("PORT", "8080"),
-		ClientID:     os.Getenv("DISCORD_CLIENT_ID"),
-		ClientSecret: os.Getenv("DISCORD_CLIENT_SECRET"),
-		RedirectURL:  getenv("DISCORD_REDIRECT_URL", "http://localhost:8080/callback"),
-		DatabasePath: getenv("DATABASE_PATH", "app.db"),
-		CookieSecure: os.Getenv("COOKIE_SECURE") == "true",
-		NSSiteToken:  os.Getenv("NS_SITE_TOKEN"),
-		NSUserAgent:  "calref-wc-predictions by Catiania (michaelfeehanlevy@gmail.com)",
+		Port:           getenv("PORT", "8080"),
+		ClientID:       os.Getenv("DISCORD_CLIENT_ID"),
+		ClientSecret:   os.Getenv("DISCORD_CLIENT_SECRET"),
+		RedirectURL:    getenv("DISCORD_REDIRECT_URL", "http://localhost:8080/callback"),
+		DatabasePath:   getenv("DATABASE_PATH", "app.db"),
+		CookieSecure:   os.Getenv("COOKIE_SECURE") == "true",
+		NSSiteToken:    os.Getenv("NS_SITE_TOKEN"),
+		NSUserAgent:    "calref-wc-predictions by Catiania (michaelfeehanlevy@gmail.com)",
+		FIFAUserAgent:  "calref-wc-predictions by Michael (michaelfeehanlevy@gmail.com)",
+		APIFootballKey: os.Getenv("API_FOOTBALL_KEY"),
 	}
 
 	if cfg.ClientID == "" || cfg.ClientSecret == "" {

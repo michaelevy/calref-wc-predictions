@@ -47,6 +47,7 @@ func (a *App) routes() http.Handler {
 	mux.HandleFunc("/logout", a.handleLogout)
 	mux.HandleFunc("/login/nationstates", a.handleNSLogin)
 	mux.HandleFunc("/leaderboard", a.handleLeaderboard)
+	mux.HandleFunc("/games", a.handleGames)
 	return mux
 }
 
@@ -231,17 +232,30 @@ func (a *App) handleLogout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-
 func (a *App) handleLeaderboard(w http.ResponseWriter, r *http.Request) {
 	user := a.currentUser(r)
 	entries, err := a.store.Leaderboard()
-	if err != nil{
+	if err != nil {
 		log.Printf("leaderboard query failed: %v", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
-	a.tmpl.ExecuteTemplate(w, "leaderboard.html", struct{
-		User *User
+	a.tmpl.ExecuteTemplate(w, "leaderboard.html", struct {
+		User    *User
 		Entries []LeaderboardEntry
 	}{user, entries})
+}
+
+func (a *App) handleGames(w http.ResponseWriter, r *http.Request) {
+	user := a.currentUser(r)
+	fixtures, err := a.store.FetchFixtures()
+	if err != nil {
+		log.Printf("fixtures query failed: %v", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+	a.tmpl.ExecuteTemplate(w, "games.html", struct {
+		User     *User
+		Fixtures []Fixture
+	}{user, fixtures})
 }
