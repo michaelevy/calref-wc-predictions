@@ -18,7 +18,9 @@ func main() {
 		log.Fatalf("open database: %v", err)
 	}
 
-	tmpl, err := template.ParseFS(templatesFS, "templates/*.html")
+	tmpl, err := template.New("").Funcs(template.FuncMap{
+		"add": func(a, b int) int { return a + b },
+	}).ParseFS(templatesFS, "templates/*.html")
 	if err != nil {
 		log.Fatalf("parse templates: %v", err)
 	}

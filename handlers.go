@@ -46,6 +46,7 @@ func (a *App) routes() http.Handler {
 	mux.HandleFunc("/callback", a.handleCallback)
 	mux.HandleFunc("/logout", a.handleLogout)
 	mux.HandleFunc("/login/nationstates", a.handleNSLogin)
+	mux.HandleFunc("/leaderboard", a.handleLeaderboard)
 	return mux
 }
 
@@ -228,4 +229,19 @@ func (a *App) handleLogout(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, &http.Cookie{Name: sessionCookieName, Path: "/", MaxAge: -1})
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+
+func (a *App) handleLeaderboard(w http.ResponseWriter, r *http.Request) {
+	user := a.currentUser(r)
+	entries, err := a.store.Leaderboard()
+	if err != nil{
+		log.Printf("leaderboard query failed: %v", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+	a.tmpl.ExecuteTemplate(w, "leaderboard.html", struct{
+		User *User
+		Entries []LeaderboardEntry
+	}{user, entries})
 }

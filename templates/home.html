@@ -26,12 +26,17 @@
         <p>Logged in ^-^</p>
         <p><a href="predict">Create your rankings</a></p>
         {{else}}
-        <p><a href="/login">Login with Discord</a></p>
         <p>
-            (You will be redirected to discord to login, this application will
-            not recieve your credentials)
+            Choose the method of verification that you prefer. All
+            authentication is handled by the external provider, so no
+            credentials are recieved or stored by this application.
         </p>
-        <p><a href="/login/nationstates">Login with NationStates</a></p>
+        <p><a href="/login">Authenticate with Discord OAuth2</a></p>
+        <p>
+            <a href="/login/nationstates"
+                >Authenticate with NationStates Verification API</a
+            >
+        </p>
         {{end}}
     </body>
 </html>

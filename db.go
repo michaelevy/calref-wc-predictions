@@ -24,6 +24,11 @@ type Store struct {
 	db *sql.DB
 }
 
+type LeaderboardEntry struct {
+	Username string
+	Points int
+}
+
 func openStore(path string) (*Store, error) {
 	db, err := sql.Open("sqlite", path)
 	if err != nil {
@@ -245,4 +250,25 @@ func (s *Store) SaveRankings(userID int64, orderedTeams []int) error {
 		}
 	}
 	return tx.Commit()
+}
+
+func (s *Store) Leaderboard() ([]LeaderboardEntry, error){
+	rows, err := s.db.Query(
+		`SELECT u.username, 0 AS points
+		FROM users u
+		WHERE EXISTS (SELECT 1 FROM rankings r WHERE r.user_id = u.id)
+		ORDER BY points DESC, u.username`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var entries []LeaderboardEntry
+	for rows.Next() {
+		var entry LeaderboardEntry
+		if err := rows.Scan(&entry.Username, &entry.Points); err != nil {
+			return nil, err
+		}
+		entries = append(entries, entry)
+	}
+	return entries, nil
 }

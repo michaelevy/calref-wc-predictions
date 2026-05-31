@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>CalRef World Cup Predictions | Leaderboard</title>
+        <style>
+            body {
+                font-family: system-ui, sans-serif;
+                max-width: 50rem;
+                margin: 4rem auto;
+                padding: 0 1rem;
+                line-height: 1.5;
+            }
+        </style>
+        {{template "nav" .User}}
+    </head>
+
+    <body>
+        <h1>Leaderboard</h1>
+        {{if .Entries}}
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Player</th>
+                    <th>Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range $i, $e := .Entries}}
+                <tr>
+                    <td>{{add $i 1}}</td>
+                    <td>{{$e.Username}}</td>
+                    <td>{{$e.Points}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{else}}
+        <p>eeeeeeeeeeeeeeeeeeeeeeee</p>
+        {{end}}
+    </body>
+</html>
