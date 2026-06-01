@@ -4,27 +4,37 @@
 
     <body>
         {{template "nav" .}}
+        <main class="container outline centre">
+            <h2 class="title">Login</h2>
 
-        <h1>CalRef World Cup Predictions</h1>
-
-        {{if .}}
-        <div class="card">
-            <div><strong> {{.Username}}</strong><br /></div>
-        </div>
-        <p>Logged in ^-^</p>
-        <p><a href="predict">Create your rankings</a></p>
-        {{else}}
-        <p>
-            Choose the method of verification that you prefer. All
-            authentication is handled by the external provider, so no
-            credentials are recieved or stored by this application.
-        </p>
-        <p><a href="/login">Authenticate with Discord OAuth2</a></p>
-        <p>
-            <a href="/login/nationstates"
-                >Authenticate with NationStates Verification API</a
-            >
-        </p>
-        {{end}}
+            {{if .}}
+            <div class="card">
+                <div><strong> {{.Username}}</strong><br /></div>
+            </div>
+            <p>Logged in ^-^</p>
+            <p>
+                <a href="predict" class="button is-info"
+                    >Create your rankings</a
+                >
+            </p>
+            {{else}}
+            <p>
+                Choose the method of verification that you prefer. All
+                authentication is handled by the external provider, so no
+                credentials are recieved or stored by this application.
+            </p>
+            <p>
+                <a href="/login/nationstates" class="button is-info"
+                    >Authenticate with NationStates Verification API</a
+                >
+            </p>
+            <p>
+                <a href="/login" class="button is-info"
+                    >Authenticate with Discord OAuth2 (redirects you to
+                    Discord)</a
+                >
+            </p>
+            {{end}}
+        </main>
     </body>
 </html>

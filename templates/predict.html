@@ -4,63 +4,64 @@
 
     <body>
         {{template "nav" .User}}
-
-        <h1>Rankings</h1>
-        {{if .HasSubmitted}}
-        <p>Here are the rankings you submitted:</p>
-        <ol>
-            {{range .Teams}}
-            <li>{{.Name}}</li>
-            {{end}}
-        </ol>
-        <p><a href="/">Back home</a></p>
-        {{else}}
-        <p>Drag to reorder (default: fifa rankings)</p>
-        <form method="POST" action="/predict" id="rankForm">
-            <ol
-                id="teamList"
-                style="
-                    display: flex;
-                    height: 80vh;
-                    flex-direction: column;
-                    flex-wrap: wrap;
-                "
-            >
+        <main class="container outline">
+            <h2 class="title centre">Rankings</h2>
+            {{if .HasSubmitted}}
+            <p>Here are the rankings you submitted:</p>
+            <ol>
                 {{range .Teams}}
-                <li
-                    data-id="{{.ID}}"
-                    style="
-                        border: 1px solid #ccc;
-                        margin: 5px;
-                        width: 150px;
-                        text-align: center;
-                        border-radius: 2.5px;
-                        margin-left: 20px;
-                    "
-                >
-                    {{.Name}}
-                </li>
+                <li>{{.Name}}</li>
                 {{end}}
             </ol>
-            <button type="submit">Save rankings</button>
-        </form>
-        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1/Sortable.min.js"></script>
-        <script>
-            new Sortable(document.getElementById("teamList"));
-            document
-                .getElementById("rankForm")
-                .addEventListener("submit", function () {
-                    document.querySelectorAll("#teamList li").forEach(function (
-                        li,
-                    ) {
-                        var inp = document.createElement("input");
-                        inp.type = "hidden";
-                        inp.name = "team";
-                        inp.value = li.dataset.id;
-                        this.appendChild(inp);
-                    }, this);
-                });
-        </script>
-        {{end}}
+            <p><a href="/">Back home</a></p>
+            {{else}}
+            <p>Drag to reorder (default: fifa rankings)</p>
+            <form method="POST" action="/predict" id="rankForm">
+                <ol
+                    id="teamList"
+                    style="
+                        display: flex;
+                        height: 80vh;
+                        flex-direction: column;
+                        flex-wrap: wrap;
+                    "
+                >
+                    {{range .Teams}}
+                    <li
+                        data-id="{{.ID}}"
+                        style="
+                            border: 1px solid #ccc;
+                            margin: 5px;
+                            width: 150px;
+                            text-align: center;
+                            border-radius: 2.5px;
+                            margin-left: 20px;
+                        "
+                    >
+                        {{.Name}}
+                    </li>
+                    {{end}}
+                </ol>
+                <button type="submit">Save rankings</button>
+            </form>
+            <script src="https://cdn.jsdelivr.net/npm/sortablejs@1/Sortable.min.js"></script>
+            <script>
+                new Sortable(document.getElementById("teamList"));
+                document
+                    .getElementById("rankForm")
+                    .addEventListener("submit", function () {
+                        document
+                            .querySelectorAll("#teamList li")
+                            .forEach(function (li) {
+                                var inp = document.createElement("input");
+                                inp.type = "hidden";
+                                inp.name = "team";
+                                inp.value = li.dataset.id;
+                                this.appendChild(inp);
+                            }, this);
+                    });
+            </script>
+            {{end}}
+        </main>
     </body>
 </html>

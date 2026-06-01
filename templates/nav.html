@@ -4,11 +4,15 @@
         margin: 5px;
     }
 </style>
-{{if .}}
-<a href="/predict">Your rankings</a>
-<a href="/leaderboard">Leaderboard</a>
-<a href="/games">Games</a>
-<a href="/logout">Log out</a>
-{{else}}
-<a href="/">Go Home</a>
-{{end}} {{end}}
+<header>
+    <h1 class="title centre"><a href="/">CalRef World Cup Predictions</a></h1>
+    <nav class="container outline">
+        {{if .}}
+        <a href="/predict">Your rankings</a>
+        <a href="/leaderboard">Leaderboard</a>
+        <a href="/games">Games</a>
+        <a href="/logout">Log out</a>
+        {{else}} {{end}}
+    </nav>
+</header>
+{{end}}

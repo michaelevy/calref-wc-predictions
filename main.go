@@ -10,7 +10,7 @@ import (
 //go:embed templates/*.html
 var templatesFS embed.FS
 
-//go:embed templates/*.html resources/calref.css resources/planet.png  resources/background.png
+//go:embed templates/*.html resources/*
 var assetsFS embed.FS
 
 func main() {

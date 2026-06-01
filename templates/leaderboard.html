@@ -4,29 +4,30 @@
 
     <body>
         {{template "nav" .User}}
-
-        <h1>Leaderboard</h1>
-        {{if .Entries}}
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Player</th>
-                    <th>Points</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{range $i, $e := .Entries}}
-                <tr>
-                    <td>{{add $i 1}}</td>
-                    <td>{{$e.Username}}</td>
-                    <td>{{$e.Points}}</td>
-                </tr>
-                {{end}}
-            </tbody>
-        </table>
-        {{else}}
-        <p>eeeeeeeeeeeeeeeeeeeeeeee</p>
-        {{end}}
+        <main class="container outline centre">
+            <h2 class="title centre">Leaderboard</h2>
+            {{if .Entries}}
+            <table class="centre inbox table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Player</th>
+                        <th>Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range $i, $e := .Entries}}
+                    <tr>
+                        <td>{{add $i 1}}</td>
+                        <td>{{$e.Username}}</td>
+                        <td>{{$e.Points}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+            {{else}}
+            <p>eeeeeeeeeeeeeeeeeeeeeeee</p>
+            {{end}}
+        </main>
     </body>
 </html>
