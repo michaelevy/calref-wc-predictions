@@ -38,6 +38,7 @@ type Fixture struct {
 	ID                   int
 	HomeName, AwayName   string
 	HomeGoals, AwayGoals *int
+	HomePens, AwayPens   *int
 	HomeId, AwayId       int
 	Kickoff              time.Time
 	Played               bool
@@ -98,7 +99,9 @@ func (s *Store) migrate() error {
 			kickoff DATETIME NOT NULL,
 			status TEXT NOT NULL,
 			home_goals INTEGER,
-			away_goals INTEGER
+			away_goals INTEGER,
+			home_pens INTEGER,
+			away_pens INTEGER
 		)`,
 	}
 	for _, q := range stmts {
@@ -181,19 +184,22 @@ func (s *Store) migrate() error {
 			kickoff              time.Time
 			status               string
 			homeGoals, awayGoals *int
+			homePens, awayPens   *int
 		}{
 			// finished: New Zealand 3-0 Iran
-			{1, 41, 32, now.Add(-24 * time.Hour), "FT", gi(3), gi(0)},
+			{1, 41, 32, now.Add(-24 * time.Hour), "FT", gi(3), gi(0), nil, nil},
 			// finished draw: Spain 1-1 England
-			{2, 1, 3, now.Add(-12 * time.Hour), "FT", gi(1), gi(1)},
+			{2, 1, 3, now.Add(-12 * time.Hour), "FT", gi(1), gi(1), nil, nil},
 			// upcoming: Switzerland v Mexico
-			{3, 17, 20, now.Add(24 * time.Hour), "NS", nil, nil},
+			{3, 17, 20, now.Add(24 * time.Hour), "NS", nil, nil, nil, nil},
+			// penalties: brazil croatia
+			{4, 5, 13, now.Add(-6 * time.Hour), "FT", gi(1), gi(1), gi(2), gi(4)},
 		}
 		for _, f := range fixtures {
 			if _, err := s.db.Exec(
-				`INSERT INTO fixtures (id, home_team_id, away_team_id, kickoff, status, home_goals, away_goals)
-                         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-				f.id, f.home, f.away, f.kickoff, f.status, f.homeGoals, f.awayGoals); err != nil {
+				`INSERT INTO fixtures (id, home_team_id, away_team_id, kickoff, status, home_goals, away_goals, home_pens, away_pens)
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+				f.id, f.home, f.away, f.kickoff, f.status, f.homeGoals, f.awayGoals, f.homePens, f.awayPens); err != nil {
 				return err
 			}
 		}
@@ -263,13 +269,15 @@ func (s *Store) RefreshFixtures(resp *fifaMatchesResp) error {
 			hg, ag = f.HomeTeamScore, f.AwayTeamScore
 		}
 		_, err := tx.Exec(
-			`INSERT INTO fixtures (id, home_team_id, away_team_id, kickoff, status, home_goals, away_goals)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+			`INSERT INTO fixtures (id, home_team_id, away_team_id, kickoff, status, home_goals, away_goals, home_pens, away_pens)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
                     status     = excluded.status,
                     home_goals = excluded.home_goals,
-                    away_goals = excluded.away_goals`,
-			f.IdMatch, homeTeamId, awayTeamId, f.Date.UTC(), status, hg, ag)
+                    away_goals = excluded.away_goals,
+                    home_pens  = excluded.home_pens,
+                    away_pens  = excluded.away_pens`,
+			f.IdMatch, homeTeamId, awayTeamId, f.Date.UTC(), status, hg, ag, f.HomeTeamPenaltyScore, f.AwayTeamPenaltyScore)
 		if err != nil {
 			return err
 		}
@@ -279,7 +287,7 @@ func (s *Store) RefreshFixtures(resp *fifaMatchesResp) error {
 
 func (s *Store) FetchFixtures() ([]Fixture, error) {
 	var out []Fixture
-	rows, err := s.db.Query(`SELECT f.id,f.home_team_id,f.away_team_id, t1.name, t2.name, f.kickoff, f.status, f.home_goals, f.away_goals FROM Fixtures f
+	rows, err := s.db.Query(`SELECT f.id,f.home_team_id,f.away_team_id, t1.code, t2.code, f.kickoff, f.status, f.home_goals, f.away_goals, f.home_pens, f.away_pens FROM Fixtures f
 		inner join Teams t1 on f.home_team_id = t1.id
 		inner join Teams t2 on f.away_team_id = t2.id
 		ORDER BY f.kickoff`)
@@ -289,7 +297,7 @@ func (s *Store) FetchFixtures() ([]Fixture, error) {
 	for rows.Next() {
 		var f Fixture
 
-		if err := rows.Scan(&f.ID, &f.HomeId, &f.AwayId, &f.HomeName, &f.AwayName, &f.Kickoff, &f.Status, &f.HomeGoals, &f.AwayGoals); err != nil {
+		if err := rows.Scan(&f.ID, &f.HomeId, &f.AwayId, &f.HomeName, &f.AwayName, &f.Kickoff, &f.Status, &f.HomeGoals, &f.AwayGoals, &f.HomePens, &f.AwayPens); err != nil {
 			return nil, err
 		}
 
@@ -432,12 +440,14 @@ func (s *Store) Leaderboard() ([]LeaderboardEntry, error) {
 	rows, err := s.db.Query(
 		`SELECT u.username,
     COALESCE((
-      SELECT SUM(CASE
-        WHEN f.home_goals = f.away_goals THEN 1
-        WHEN rh.rank < ra.rank AND f.home_goals > f.away_goals THEN 3
-        WHEN ra.rank < rh.rank AND f.away_goals > f.home_goals THEN 3
-        ELSE 0
-      END)
+      SELECT  SUM(CASE
+         WHEN f.home_goals > f.away_goals AND rh.rank < ra.rank THEN 3
+         WHEN f.away_goals > f.home_goals AND ra.rank < rh.rank THEN 3
+         WHEN f.home_goals = f.away_goals AND COALESCE(f.home_pens,0) > COALESCE(f.away_pens,0) AND rh.rank < ra.rank THEN 3
+         WHEN f.home_goals = f.away_goals AND COALESCE(f.away_pens,0) > COALESCE(f.home_pens,0) AND ra.rank < rh.rank THEN 3
+         WHEN f.home_goals = f.away_goals AND COALESCE(f.home_pens,0) = COALESCE(f.away_pens,0) THEN 1
+         ELSE 0
+       END)
       FROM fixtures f
       JOIN rankings rh ON rh.user_id = u.id AND rh.team_id = f.home_team_id
       JOIN rankings ra ON ra.user_id = u.id AND ra.team_id = f.away_team_id

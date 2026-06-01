@@ -2,46 +2,55 @@
 <html lang="en">
     {{template "head" "Games"}}
     <body>
-        {{template "nav" .User}} {{range .Fixtures}}
-        <div
-            style="
-                border: 3px solid #222;
-                border-radius: 8px;
+        <style>
+            .fixture {
                 padding: 1rem;
-                margin: 1rem 0;
-            "
+                margin: 1% 2% 1% 2%;
+                width: 20%;
+            }
+        </style>
+        {{template "nav" .User}}
+        <div
+            style="display: flex; flex-wrap: wrap"
+            class="countainer outline centre"
         >
-            <div
-                style="
-                    display: flex;
-                    justify-content: space-between;
-                    font-size: 1.4rem;
-                    font-weight: bold;
-                "
-            >
-                <span>{{.HomeName}}</span>
-                <span
-                    >{{if eq .Status
-                    "FT"}}{{.HomeGoals}}-{{.AwayGoals}}{{else}}v{{end}}</span
+            {{range .Fixtures}}
+            <div class="fixture subbox blueline">
+                <div
+                    style="
+                        display: flex;
+                        justify-content: space-between;
+                        font-size: 1.1rem;
+                        font-weight: bold;
+                    "
                 >
-                <span>{{.AwayName}}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between">
-                <div>
-                    {{range .HomeSide}}
-                    <div>{{.Username}}</div>
-                    {{end}}
+                    <span>{{.HomeName}}</span>
+                    <div style="display: flex; flex-direction: column">
+                        {{if eq .Status
+                        "FT"}}{{.HomeGoals}}-{{.AwayGoals}}{{else}}v{{end}} {{if
+                        and (eq .Status "FT") (ne .HomePens nil) (ne .AwayPens
+                        nil)}}
+                        <div style="color: #999; font-size: small">
+                            ({{.HomePens}}-{{.AwayPens}})
+                        </div>
+                        {{else}}{{end}}
+                    </div>
+                    <span>{{.AwayName}}</span>
                 </div>
-                <div>
-                    {{range .AwaySide}}
-                    <div>{{.Username}}</div>
-                    {{end}}
+                <div style="display: flex; justify-content: space-between">
+                    <div>
+                        {{range .HomeSide}}
+                        <div>{{.Username}}</div>
+                        {{end}}
+                    </div>
+                    <div>
+                        {{range .AwaySide}}
+                        <div>{{.Username}}</div>
+                        {{end}}
+                    </div>
                 </div>
             </div>
-            <p style="text-align: center; color: #999">
-                {{.Kickoff.Format "3pm 02/01/06"}}
-            </p>
+            {{end}}
         </div>
-        {{end}}
     </body>
 </html>

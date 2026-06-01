@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"embed"
 	"errors"
 	"fmt"
 	"html/template"
@@ -23,18 +24,20 @@ const (
 )
 
 type App struct {
-	cfg   Config
-	store *Store
-	oauth *oauth2.Config
-	tmpl  *template.Template
+	cfg      Config
+	store    *Store
+	oauth    *oauth2.Config
+	tmpl     *template.Template
+	assetsFS embed.FS
 }
 
-func newApp(cfg Config, store *Store, tmpl *template.Template) *App {
+func newApp(cfg Config, store *Store, tmpl *template.Template, assetsFS embed.FS) *App {
 	return &App{
-		cfg:   cfg,
-		store: store,
-		oauth: newOAuthConfig(cfg),
-		tmpl:  tmpl,
+		cfg:      cfg,
+		store:    store,
+		oauth:    newOAuthConfig(cfg),
+		tmpl:     tmpl,
+		assetsFS: assetsFS,
 	}
 }
 
@@ -48,6 +51,8 @@ func (a *App) routes() http.Handler {
 	mux.HandleFunc("/login/nationstates", a.handleNSLogin)
 	mux.HandleFunc("/leaderboard", a.handleLeaderboard)
 	mux.HandleFunc("/games", a.handleGames)
+	mux.Handle("/resources/", http.FileServer(http.FS(assetsFS)))
+
 	return mux
 }
 
@@ -254,8 +259,10 @@ func (a *App) handleGames(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
-	a.tmpl.ExecuteTemplate(w, "games.html", struct {
+	if err := a.tmpl.ExecuteTemplate(w, "games.html", struct {
 		User     *User
 		Fixtures []Fixture
-	}{user, fixtures})
+	}{user, fixtures}); err != nil {
+		log.Printf("games template error: %v", err)
+	}
 }

@@ -12,13 +12,15 @@ const fifaMatchesURL = "https://api.fifa.com/api/v3/calendar/matches?idCompetiti
 
 type fifaMatchesResp struct {
 	Results []struct {
-		IdMatch       string    `json:"IdMatch"`
-		Date          time.Time `json:"Date"`
-		MatchStatus   int       `json:"MatchStatus"`
-		Home          fifaSide  `json:"Home"`
-		Away          fifaSide  `json:"Away"`
-		HomeTeamScore *int      `json:"HomeTeamScore"`
-		AwayTeamScore *int      `json:"AwayTeamScore"`
+		IdMatch              string    `json:"IdMatch"`
+		Date                 time.Time `json:"Date"`
+		MatchStatus          int       `json:"MatchStatus"`
+		Home                 fifaSide  `json:"Home"`
+		Away                 fifaSide  `json:"Away"`
+		HomeTeamScore        *int      `json:"HomeTeamScore"`
+		AwayTeamScore        *int      `json:"AwayTeamScore"`
+		HomeTeamPenaltyScore *int      `json:"HomeTeamPenaltyScore"`
+		AwayTeamPenaltyScore *int      `json:"AwayTeamPenaltyScore"`
 	} `json:"Results"`
 }
 
