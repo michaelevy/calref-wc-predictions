@@ -5,18 +5,24 @@
     <body>
         {{template "nav" .}}
         <main class="container outline centre">
-            <h2 class="title">Login</h2>
+            <h2 class="title">Home</h2>
 
             {{if .}}
-            <div class="card">
-                <div><strong> {{.Username}}</strong><br /></div>
-            </div>
-            <p>Logged in ^-^</p>
-            <p>
-                <a href="predict" class="button is-info"
-                    >Create your rankings</a
-                >
+            <p class="notif okay">
+                Logged in as <strong> {{.Username}}</strong><br />
+                ^-^
             </p>
+            <hr />
+            <h3 class="title">How it works:</h3>
+            <p>
+                You will submit your rankings once at the start. Every game, you
+                will automatically support the team that you placed higher in
+                your rankings. If that team wins, you will gain 3 points. If the
+                game is a draw (in the group stages), you will gain one point.
+            </p>
+            <a href="predict" class="is-info button centre width-half"
+                >Create your rankings</a
+            >
             {{else}}
             <p>
                 Choose the method of verification that you prefer. All

@@ -26,20 +26,11 @@ body {
 }
 a {
     color: #00f8ff;
-    -moz-transition: all 0.5s;
-    -webkit-transition: all 0.5s;
-    -o-transition: all 0.5s;
-    transition: all 0.5s;
 }
 a:hover {
     color: #ecc906;
 }
-a.gold {
-    -moz-transition: all 0.5s;
-    -webkit-transition: all 0.5s;
-    -o-transition: all 0.5s;
-    transition: all 0.5s;
-}
+
 a.gold:hover {
     color: #00f8ff;
     text-shadow: 1px 1px 2px #047477;
@@ -66,20 +57,6 @@ ul {
     margin-left: 2.5rem;
 }
 
-nav {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    padding: 5px;
-}
-
-nav > a {
-    color: #fff;
-    text-decoration: none;
-    padding: 0.5rem;
-    transition: all 0.5s;
-}
-
 .title {
     color: #fff;
     font-weight: 300;
@@ -88,31 +65,6 @@ nav > a {
     a {
         text-decoration: none;
     }
-}
-.button {
-    width: 100%;
-    -moz-transition: all 0.5s;
-    -webkit-transition: all 0.5s;
-    -o-transition: all 0.5s;
-    transition: all 0.5s;
-    cursor: pointer;
-    justify-content: center;
-    padding-bottom: calc(0.5em - 1px);
-    padding-left: 1em;
-    padding-right: 1em;
-    padding-top: calc(0.5em - 1px);
-    text-align: center;
-    white-space: nowrap;
-    appearance: none;
-    align-items: center;
-    border-radius: 4px;
-    box-shadow: none;
-    display: inline-flex;
-    font-size: 1rem;
-    height: 2.5em;
-    justify-content: flex-start;
-    line-height: 1.5;
-    text-decoration: none;
 }
 .button.is-info:not(:hover) {
     background-color: #0224644f;
@@ -169,6 +121,9 @@ nav > a {
 }
 
 /* Notifs */
+.notif {
+    padding: 5px;
+}
 .okay {
     color: #fdf5d5;
     background-color: #0264084a;

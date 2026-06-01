@@ -73,3 +73,307 @@ h6 {
 #__next {
     isolation: isolate;
 }
+
+/*  overrides */
+
+button {
+    display: block;
+    margin: 0;
+    margin-left: 0px;
+    padding: 5px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    font-size: inherit;
+    color: inherit;
+    position: relative;
+}
+
+textarea,
+input[type="text"] {
+    resize: none;
+    overflow: hidden;
+    width: 90%;
+    margin: 5px;
+    padding: 5px;
+
+    border-style: solid;
+    border-width: 2px;
+
+    &:focus {
+        outline: none;
+    }
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 5px;
+}
+
+nav > a {
+    color: #fff;
+    text-decoration: none;
+    padding: 0.5rem;
+    transition: all 0.5s;
+}
+
+/* utilities */
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.flex-left {
+    justify-content: left;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.item {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.margin {
+    margin: 10px;
+}
+
+.width-half {
+    width: 50%;
+}
+
+.width-full {
+    width: 100%;
+}
+
+.round {
+    border-radius: 0.5rem;
+}
+
+/* decorations */
+
+.bar::before {
+    display: block;
+    flex: 0.25;
+    align-self: flex-start;
+    height: 1em;
+    content: "";
+    background-color: currentColor;
+}
+
+.bar::after {
+    display: block;
+    flex: 0.75;
+    align-self: flex-start;
+    height: 1em;
+    content: "";
+    background-color: currentColor;
+}
+
+.bar {
+    display: flex;
+    column-gap: 0.1em;
+    align-items: center;
+    max-width: unset;
+    height: min-content;
+}
+
+.bar-right {
+    display: flex;
+    column-gap: 0.5em;
+    align-items: center;
+    width: 100%;
+    height: min-content;
+}
+
+.bar-right::after {
+    display: block;
+    flex: 1;
+    height: 0.5em;
+    content: "";
+    transform: translateY(-0.1em);
+    background-color: currentColor;
+}
+
+a {
+    color: var(--secondary);
+    border-radius: 2px;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    box-decoration-break: clone;
+    transition: 0.1s ease-in-out;
+
+    &:hover {
+        text-underline-offset: 3px;
+        text-decoration-thickness: 2px;
+        color: var(--secondary);
+        transition: 0.1s ease-in-out;
+    }
+}
+
+.button:not(.magic) {
+    -moz-transition: all 0.5s;
+    -webkit-transition: all 0.5s;
+    -o-transition: all 0.5s;
+    transition: all 0.5s;
+}
+
+.button {
+    cursor: pointer;
+    justify-content: center;
+    padding-bottom: calc(0.5em - 1px);
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-top: calc(0.5em - 1px);
+    text-align: center;
+    white-space: nowrap;
+    appearance: none;
+    align-items: center;
+    border-radius: 2px;
+    box-shadow: none;
+    display: inline-flex;
+    font-size: 1rem;
+    height: 2.5em;
+    justify-content: flex-start;
+    line-height: 1.5;
+    text-decoration: none;
+}
+
+.animated-links {
+    a {
+        color: var(--secondary);
+        border-radius: 2px;
+        transition-property: color, background-size;
+        text-decoration: none;
+        text-wrap: balance;
+        background-image: linear-gradient(currentColor, currentColor);
+        background-repeat: no-repeat;
+        background-position: 0 calc(100% - 1px);
+        background-size: 0 1px;
+        paint-order: stroke fill;
+        justify-self: start;
+
+        &:hover {
+            background-size: 100% 1px;
+        }
+    }
+}
+
+a.button {
+    &:hover {
+        transition:
+            --magic-rainbow-color-0 2000ms linear,
+            --magic-rainbow-color-1 2000ms linear,
+            --magic-rainbow-color-2 2000ms linear;
+    }
+
+    .forward-arrow {
+        position: absolute;
+        top: 0.6rem;
+        right: 0.5rem;
+    }
+}
+
+.magic:hover {
+    color: var(--background);
+    scale: 1.05;
+}
+
+@keyframes slide {
+    from {
+        transform: translateY(-100%);
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    to {
+        transform: translateY(100%);
+    }
+}
+
+.down-arrow {
+    display: inline;
+    animation: slide 1500ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: cubic-bezier(0, 0.75, 1, 0.25);
+    opacity: 1;
+}
+
+.back-arrow {
+    display: inline;
+    animation: slide 1500ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: cubic-bezier(0, 0.75, 1, 0.25);
+    opacity: 1;
+    rotate: 90deg;
+}
+
+.forward-arrow {
+    display: inline;
+    animation: slide 1500ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: cubic-bezier(0, 0.75, 1, 0.25);
+    opacity: 1;
+    rotate: -90deg;
+}
+
+.magic {
+    background: linear-gradient(
+        170deg,
+        hsl(204deg 100% 50%),
+        hsl(182deg 100% 50%)
+    );
+
+    color: white;
+    font-weight: bold;
+    transition: scale 0.2s ease-in-out;
+    outline: none;
+    border: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .magic {
+        --magic-rainbow-color-0: hsl(204deg 100% 50%);
+        --magic-rainbow-color-1: hsl(182deg 100% 50%);
+        --magic-rainbow-color-2: hsl(160deg 80% 50%);
+
+        background: linear-gradient(
+            170deg,
+            var(--magic-rainbow-color-0),
+            var(--magic-rainbow-color-1),
+            var(--magic-rainbow-color-2)
+        );
+
+        transition:
+            --magic-rainbow-color-0 2000ms linear,
+            --magic-rainbow-color-1 2000ms linear,
+            --magic-rainbow-color-2 2000ms linear;
+
+        /* just testing colour values */
+        --e: hsl(270deg, 100%, 40%);
+        --e: hsl(19, 100%, 35%);
+        --e: hsl(24, 97%, 45%);
+        --e: hsl(230deg, 100%, 35%);
+        --e: hsl(240deg, 100%, 45%);
+        --e: hsl(260deg, 100%, 55%);
+    }
+}

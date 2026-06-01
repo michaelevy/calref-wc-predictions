@@ -1,48 +1,48 @@
 <!doctype html>
 <html lang="en">
     {{template "head" "Ranking"}}
+    <style>
+        .nation {
+            border: 1px solid #ccc;
+            margin: 5px;
+            width: 150px;
+            text-align: center;
+            border-radius: 2.5px;
+            margin-left: 20px;
+            background-color: #0224644f;
+            cursor: pointer;
+        }
 
+        .nation:hover {
+            background-color: #09f;
+        }
+    </style>
     <body>
         {{template "nav" .User}}
         <main class="container outline">
             <h2 class="title centre">Rankings</h2>
             {{if .HasSubmitted}}
-            <p>Here are the rankings you submitted:</p>
-            <ol>
-                {{range .Teams}}
-                <li>{{.Name}}</li>
-                {{end}}
-            </ol>
-            <p><a href="/">Back home</a></p>
+            <div class="centre">
+                <p class="notif okay">Here are the rankings you submitted:</p>
+                <hr />
+                <ol class="flex-column flex-left" style="height: 100vh">
+                    {{range .Teams}}
+                    <li style="width: 200px">{{.Name}}</li>
+                    {{end}}
+                </ol>
+                <p><a href="/">Back home</a></p>
+            </div>
             {{else}}
             <p>Drag to reorder (default: fifa rankings)</p>
             <form method="POST" action="/predict" id="rankForm">
-                <ol
-                    id="teamList"
-                    style="
-                        display: flex;
-                        height: 80vh;
-                        flex-direction: column;
-                        flex-wrap: wrap;
-                    "
-                >
+                <ol id="teamList" style="height: 80vh" class="flex-column">
                     {{range .Teams}}
-                    <li
-                        data-id="{{.ID}}"
-                        style="
-                            border: 1px solid #ccc;
-                            margin: 5px;
-                            width: 150px;
-                            text-align: center;
-                            border-radius: 2.5px;
-                            margin-left: 20px;
-                        "
-                    >
-                        {{.Name}}
-                    </li>
+                    <li data-id="{{.ID}}" class="nation">{{.Name}}</li>
                     {{end}}
                 </ol>
-                <button type="submit">Save rankings</button>
+                <button type="submit" class="button is-info">
+                    Save rankings
+                </button>
             </form>
             <script src="https://cdn.jsdelivr.net/npm/sortablejs@1/Sortable.min.js"></script>
             <script>

@@ -4,10 +4,10 @@
 
     <body>
         {{template "nav" .User}}
-        <main class="container outline centre">
+        <main class="flex-column outline centre">
             <h2 class="title centre">Leaderboard</h2>
             {{if .Entries}}
-            <table class="centre inbox table">
+            <table class="centre inbox">
                 <thead>
                     <tr>
                         <th>#</th>
