@@ -13,33 +13,39 @@
                 ^-^
             </p>
             <hr />
-            <h3 class="title">How it works:</h3>
-            <p>
-                You will submit your rankings once at the start. Every game, you
-                will automatically support the team that you placed higher in
-                your rankings. If that team wins, you will gain 3 points. If the
-                game is a draw (in the group stages), you will gain one point.
-            </p>
-            <a href="predict" class="is-info button centre width-half"
-                >Create your rankings</a
-            >
+            <div class="inbox">
+                <h3 class="title">How it works:</h3>
+                <p>
+                    You will submit your rankings once at the start. Every game,
+                    you will automatically support the team that you placed
+                    higher in your rankings. If that team wins, you will gain 3
+                    points. If the game is a draw (in the group stages), you
+                    will gain one point.
+                </p>
+                <a href="predict" class="is-info button centre width-half"
+                    >Create your rankings</a
+                >
+            </div>
             {{else}}
-            <p>
-                Choose the method of verification that you prefer. All
-                authentication is handled by the external provider, so no
-                credentials are recieved or stored by this application.
-            </p>
-            <p>
-                <a href="/login/nationstates" class="button is-info"
-                    >Authenticate with NationStates Verification API</a
-                >
-            </p>
-            <p>
-                <a href="/login" class="button is-info"
-                    >Authenticate with Discord OAuth2 (redirects you to
-                    Discord)</a
-                >
-            </p>
+            <div class="inbox">
+                <p>
+                    Choose the method of verification that you prefer. All
+                    authentication is handled by the external provider, so no
+                    credentials are recieved or stored by this application.
+                </p>
+                <p>
+                    <a href="/login/nationstates" class="button is-info"
+                        >Authenticate with NationStates Verification API</a
+                    >
+                </p>
+                <p>
+                    <a href="/login" class="button is-info"
+                        >Authenticate with Discord OAuth2 (redirects you to
+                        Discord)</a
+                    >
+                </p>
+            </div>
+
             {{end}}
         </main>
     </body>

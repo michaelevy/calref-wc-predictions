@@ -22,7 +22,7 @@
         <main class="container outline">
             <h2 class="title centre">Rankings</h2>
             {{if .HasSubmitted}}
-            <div class="centre">
+            <div class="centre inbox">
                 <p class="notif okay">Here are the rankings you submitted:</p>
                 <hr />
                 <ol class="flex-column flex-left" style="height: 100vh">
@@ -30,7 +30,6 @@
                     <li style="width: 200px">{{.Name}}</li>
                     {{end}}
                 </ol>
-                <p><a href="/">Back home</a></p>
             </div>
             {{else}}
             <p>Drag to reorder (default: fifa rankings)</p>

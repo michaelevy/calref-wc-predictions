@@ -1,5 +1,6 @@
 html {
-    background-image: url("/resources/background.png");
+    background-image: url("/resources/background.webp");
+    background-color: #0f2290;
     height: 100%;
     background-attachment: fixed;
     background-repeat: no-repeat;
@@ -91,7 +92,7 @@ ul {
     border-radius: 8px;
     box-shadow: 0 2px 3px #09f;
     padding: 10px;
-    margin: 0 auto;
+    margin: 0 0 1.5rem 0;
 }
 .inbox {
     background: #0b1120a8;
