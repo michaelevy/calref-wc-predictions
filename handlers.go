@@ -51,9 +51,16 @@ func (a *App) routes() http.Handler {
 	mux.HandleFunc("/login/nationstates", a.handleNSLogin)
 	mux.HandleFunc("/leaderboard", a.handleLeaderboard)
 	mux.HandleFunc("/games", a.handleGames)
-	mux.Handle("/resources/", http.FileServer(http.FS(assetsFS)))
+	mux.Handle("/resources/", cacheControl(http.FileServer(http.FS(assetsFS))))
 
 	return mux
+}
+
+func cacheControl(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "public, max-age=86400")
+		next.ServeHTTP(w, r)
+	})
 }
 
 // currentUser returns the logged-in user, or nil if there is no valid session.
