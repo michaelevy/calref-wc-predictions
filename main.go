@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"html/template"
 	"log"
 	"net/http"
+	"time"
 )
 
 //go:embed templates/*.html

@@ -174,36 +174,36 @@ func (s *Store) migrate() error {
 			}
 		}
 	}
-	var nf int
-	s.db.QueryRow(`SELECT COUNT(*) FROM fixtures`).Scan(&nf)
-	if nf == 0 {
-		now := time.Now().UTC()
-		gi := func(n int) *int { return &n } // helper for goal pointers
-		fixtures := []struct {
-			id, home, away       int
-			kickoff              time.Time
-			status               string
-			homeGoals, awayGoals *int
-			homePens, awayPens   *int
-		}{
-			// finished: New Zealand 3-0 Iran
-			{1, 41, 32, now.Add(-24 * time.Hour), "FT", gi(3), gi(0), nil, nil},
-			// finished draw: Spain 1-1 England
-			{2, 1, 3, now.Add(-12 * time.Hour), "FT", gi(1), gi(1), nil, nil},
-			// upcoming: Switzerland v Mexico
-			{3, 17, 20, now.Add(24 * time.Hour), "NS", nil, nil, nil, nil},
-			// penalties: brazil croatia
-			{4, 5, 13, now.Add(-6 * time.Hour), "FT", gi(1), gi(1), gi(2), gi(4)},
-		}
-		for _, f := range fixtures {
-			if _, err := s.db.Exec(
-				`INSERT INTO fixtures (id, home_team_id, away_team_id, kickoff, status, home_goals, away_goals, home_pens, away_pens)
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-				f.id, f.home, f.away, f.kickoff, f.status, f.homeGoals, f.awayGoals, f.homePens, f.awayPens); err != nil {
-				return err
-			}
-		}
-	}
+	// var nf int
+	// s.db.QueryRow(`SELECT COUNT(*) FROM fixtures`).Scan(&nf)
+	// if nf == 0 {
+	// 	now := time.Now().UTC()
+	// 	gi := func(n int) *int { return &n } // helper for goal pointers
+	// 	fixtures := []struct {
+	// 		id, home, away       int
+	// 		kickoff              time.Time
+	// 		status               string
+	// 		homeGoals, awayGoals *int
+	// 		homePens, awayPens   *int
+	// 	}{
+	// 		// finished: New Zealand 3-0 Iran
+	// 		{1, 41, 32, now.Add(-24 * time.Hour), "FT", gi(3), gi(0), nil, nil},
+	// 		// finished draw: Spain 1-1 England
+	// 		{2, 1, 3, now.Add(-12 * time.Hour), "FT", gi(1), gi(1), nil, nil},
+	// 		// upcoming: Switzerland v Mexico
+	// 		{3, 17, 20, now.Add(24 * time.Hour), "NS", nil, nil, nil, nil},
+	// 		// penalties: brazil croatia
+	// 		{4, 5, 13, now.Add(-6 * time.Hour), "FT", gi(1), gi(1), gi(2), gi(4)},
+	// 	}
+	// 	for _, f := range fixtures {
+	// 		if _, err := s.db.Exec(
+	// 			`INSERT INTO fixtures (id, home_team_id, away_team_id, kickoff, status, home_goals, away_goals, home_pens, away_pens)
+	//                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+	// 			f.id, f.home, f.away, f.kickoff, f.status, f.homeGoals, f.awayGoals, f.homePens, f.awayPens); err != nil {
+	// 			return err
+	// 		}
+	// 	}
+	// }
 	return nil
 }
 
