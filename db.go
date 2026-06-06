@@ -89,6 +89,7 @@ func (s *Store) migrate() error {
 			user_id INTEGER NOT NULL REFERENCES users(id),
 			team_id INTEGER NOT NULL REFERENCES teams(id),
 			rank INTEGER NOT NULL,
+			submitted_at DATETIME,
 			PRIMARY KEY (user_id, team_id),
 			UNIQUE (user_id, rank)
 		)`,
@@ -301,7 +302,7 @@ func (s *Store) FetchFixtures() ([]Fixture, error) {
 			return nil, err
 		}
 
-		home, away, err := s.FixtureSides(f.HomeId, f.AwayId)
+		home, away, err := s.FixtureSides(f.HomeId, f.AwayId, f.Kickoff)
 		if err != nil {
 			return nil, err
 		}
@@ -331,12 +332,13 @@ func (s *Store) FetchFixtures() ([]Fixture, error) {
 	return out, nil
 }
 
-func (s *Store) FixtureSides(homeId, awayId int) (home []string, away []string, err error) {
+func (s *Store) FixtureSides(homeId, awayId int, kickoff time.Time) (home []string, away []string, err error) {
 	rows, err := s.db.Query(`SELECT u.username, CASE WHEN rh.rank < ra.rank THEN 'home' ELSE 'away' END
   FROM users u
   JOIN rankings rh ON rh.user_id = u.id AND rh.team_id = ?
   JOIN rankings ra ON ra.user_id = u.id AND ra.team_id = ?
-  ORDER BY u.username`, homeId, awayId)
+  WHERE ? < rh.submitted_at
+  ORDER BY u.username`, homeId, awayId, kickoff.UTC())
 	if err != nil {
 		return nil, nil, err
 	}
@@ -427,8 +429,9 @@ func (s *Store) SaveRankings(userID int64, orderedTeams []int) error {
 	}
 	defer tx.Rollback()
 
+	now := time.Now().UTC()
 	for i, teamID := range orderedTeams {
-		_, err := tx.Exec(`INSERT INTO rankings (user_id, team_id, rank) VALUES (?, ?, ?)`, userID, teamID, i+1)
+		_, err := tx.Exec(`INSERT INTO rankings (user_id, team_id, rank, submitted_at) VALUES (?, ?, ?, ?)`, userID, teamID, i+1, now)
 		if err != nil {
 			return err
 		}
@@ -451,7 +454,7 @@ func (s *Store) Leaderboard() ([]LeaderboardEntry, error) {
       FROM fixtures f
       JOIN rankings rh ON rh.user_id = u.id AND rh.team_id = f.home_team_id
       JOIN rankings ra ON ra.user_id = u.id AND ra.team_id = f.away_team_id
-      WHERE f.status = 'FT'
+      WHERE f.status = 'FT' AND f.kickoff < rh.submitted_at
     ), 0) AS points
   FROM users u
   WHERE EXISTS (SELECT 1 FROM rankings r WHERE r.user_id = u.id)
