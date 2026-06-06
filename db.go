@@ -337,7 +337,7 @@ func (s *Store) FixtureSides(homeId, awayId int, kickoff time.Time) (home []stri
   FROM users u
   JOIN rankings rh ON rh.user_id = u.id AND rh.team_id = ?
   JOIN rankings ra ON ra.user_id = u.id AND ra.team_id = ?
-  WHERE ? < rh.submitted_at
+  WHERE ? > rh.submitted_at
   ORDER BY u.username`, homeId, awayId, kickoff.UTC())
 	if err != nil {
 		return nil, nil, err
@@ -454,7 +454,7 @@ func (s *Store) Leaderboard() ([]LeaderboardEntry, error) {
       FROM fixtures f
       JOIN rankings rh ON rh.user_id = u.id AND rh.team_id = f.home_team_id
       JOIN rankings ra ON ra.user_id = u.id AND ra.team_id = f.away_team_id
-      WHERE f.status = 'FT' AND f.kickoff < rh.submitted_at
+      WHERE f.status = 'FT' AND f.kickoff > rh.submitted_at
     ), 0) AS points
   FROM users u
   WHERE EXISTS (SELECT 1 FROM rankings r WHERE r.user_id = u.id)
